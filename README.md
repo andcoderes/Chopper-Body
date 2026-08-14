@@ -78,8 +78,7 @@ pio device monitor
 ## Project Structure
 
 ```
-pcb/
-  chopper_body_v2/                   # KiCad project (schematic, board, gerbers)
+pcb/                                  # KiCad project (schematic, board, gerbers)
 firmware/
   platformio.ini
   .env.example                       # Template for ESP-NOW keys — copy to .env
