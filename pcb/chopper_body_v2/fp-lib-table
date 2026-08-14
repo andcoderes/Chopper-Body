@@ -1,0 +1,7 @@
+(fp_lib_table
+	(version 7)
+	(lib (name "chopper_library") (type "KiCad") (uri "${KIPRJMOD}/chopper_library.pretty") (options "") (descr ""))
+	(lib (name "chopper_library") (type "KiCad") (uri "${KIPRJMOD}/chopper_library.pretty") (options "") (descr ""))
+	(lib (name "symbols") (type "KiCad") (uri "C:/Users/Jaime/Documents/KiCad/10.0/symbols.pretty") (options "") (descr ""))
+	(lib (name "chopper_library") (type "KiCad") (uri "${KIPRJMOD}/chopper_library.pretty") (options "") (descr ""))
+)

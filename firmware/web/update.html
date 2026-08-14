@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Firmware Update — Chopper Body</title>
+<link rel="stylesheet" href="/assets/common.css">
+<style>
+.warn-box{border:1px solid #c59000;background:#fffbeb;color:#7c5e00;padding:.9rem 1.1rem;font-size:.78rem;line-height:1.7;margin:1rem 0;border-radius:4px}
+.warn-box strong{color:#5a4300;letter-spacing:.05em;display:block;margin-bottom:.3rem}
+.warn-box code{color:#8a6c00;font-size:.82em}
+.file-row{padding:.9rem 0;border-bottom:1px solid var(--border)}
+#fw-file{font-size:.8rem;color:var(--muted);width:100%}
+#fw-file::file-selector-button{background:var(--surface);color:var(--text);border:1px solid var(--border);padding:.3rem .8rem;cursor:pointer;font-size:.75rem;letter-spacing:.08em;margin-right:.7rem;border-radius:4px;transition:border-color .15s,color .15s}
+#fw-file::file-selector-button:hover{border-color:var(--accent);color:var(--accent)}
+#flash-btn{margin-top:1.2rem;background:var(--danger-soft);color:var(--danger);border:1px solid var(--danger);padding:.5rem 1.6rem;font-size:.78rem;letter-spacing:.15em;text-transform:uppercase;border-radius:4px;cursor:pointer;transition:background .15s,color .15s}
+#flash-btn:disabled{opacity:.35;cursor:default}
+#flash-btn:not(:disabled):hover{background:var(--danger);color:#fff}
+.prog-wrap{margin:1.6rem 0 .4rem}
+.prog-label{font:500 11px/1 ui-monospace,'SF Mono',Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.7rem}
+progress{width:100%;height:22px;appearance:none;-webkit-appearance:none;border:1px solid var(--border);background:var(--surface2);display:block;border-radius:4px}
+progress::-webkit-progress-bar{background:var(--surface2);border-radius:4px}
+progress::-webkit-progress-value{background:var(--accent);transition:width .4s ease;border-radius:4px}
+progress::-moz-progress-bar{background:var(--accent)}
+progress.busy::-webkit-progress-value{animation:prog-pulse 1.2s ease-in-out infinite}
+@keyframes prog-pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.prog-pct{font:500 11px/1 ui-monospace,'SF Mono',Menlo,monospace;color:var(--muted);text-align:right;margin-top:.35rem}
+.success-box{border:1px solid #2d7a2d;background:#f0fdf4;color:#2d7a2d;padding:1.6rem;text-align:center;line-height:2.2;margin-top:1rem;border-radius:6px}
+.success-box .icon{font-size:2rem;display:block}
+.success-box .ver{font:500 11px/1 ui-monospace,'SF Mono',Menlo,monospace;letter-spacing:.1em;display:block;opacity:.8}
+</style>
+<script>!function(){var t=localStorage.getItem("chopper-theme")||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");document.documentElement.dataset.theme=t}()</script>
+</head>
+<body>
+<div class="page-header">
+  <a class="back" href="/">&#9664; BACK</a>
+  <div class="page-title"><span class="dot"></span><span class="label">Firmware Update</span><span class="dot"></span></div>
+</div>
+<main>
+  <div id="form-area">
+    <div class="section-label">Current Firmware</div>
+    <div class="row"><div class="row-label">Version</div><div class="rv" id="cur-ver">&#8212;</div></div>
+    <div class="row"><div class="row-label">Uptime</div><div class="rv" id="cur-up">&#8212;</div></div>
+    <div class="row"><div class="row-label">Free Heap</div><div class="rv" id="cur-heap">&#8212;</div></div>
+
+    <div class="section-label" style="margin-top:.8rem">Flash New Firmware</div>
+    <div class="warn-box">
+      <strong>&#9888; WARNING</strong>
+      This will overwrite the firmware currently running on the body.
+      Do not power off during the update — this can brick the board.
+      Ensure you are uploading the correct <code>.bin</code> file.
+    </div>
+    <div class="file-row">
+      <input type="file" id="fw-file" accept=".bin">
+    </div>
+    <button id="flash-btn" disabled>Flash Firmware</button>
+  </div>
+
+  <div id="prog-area" hidden>
+    <div class="prog-wrap">
+      <div class="prog-label" id="prog-label">Uploading firmware&hellip;</div>
+      <progress id="prog" value="0" max="100"></progress>
+      <div class="prog-pct" id="prog-pct">0%</div>
+    </div>
+  </div>
+
+  <div id="success-area" hidden>
+    <div class="success-box">
+      <span class="icon">&#10003;</span>
+      Firmware update complete.
+      <span class="ver" id="new-ver"></span>
+    </div>
+  </div>
+</main>
+<script>
+function fmtUptime(ms) {
+  var s = Math.floor(ms / 1000);
+  var h = Math.floor(s / 3600); s %= 3600;
+  var m = Math.floor(s / 60);   s %= 60;
+  return h + 'h ' + m + 'm ' + s + 's';
+}
+
+fetch('/api/info').then(function(r){return r.json();}).then(function(d){
+  document.getElementById('cur-ver').textContent  = 'v' + d.version;
+  document.getElementById('cur-up').textContent   = fmtUptime(d.uptime);
+  document.getElementById('cur-heap').textContent = Math.round(d.heap / 1024) + ' KB';
+});
+
+var fileInput   = document.getElementById('fw-file');
+var flashBtn    = document.getElementById('flash-btn');
+var formArea    = document.getElementById('form-area');
+var progArea    = document.getElementById('prog-area');
+var successArea = document.getElementById('success-area');
+var prog        = document.getElementById('prog');
+var progLabel   = document.getElementById('prog-label');
+var progPct     = document.getElementById('prog-pct');
+
+fileInput.onchange = function() { flashBtn.disabled = !fileInput.files.length; };
+
+flashBtn.onclick = function() {
+  if (!fileInput.files.length) return;
+  var ok = window.confirm(
+    '\u26A0 WARNING\n\nThis will overwrite the firmware.\n\n' +
+    'Do NOT power off during the update.\n\nPress OK to begin flashing.'
+  );
+  if (!ok) return;
+  startUpload();
+};
+
+function setPhase(label, pct, busy) {
+  progLabel.textContent = label;
+  prog.value = pct;
+  progPct.textContent = pct + '%';
+  if (busy) prog.classList.add('busy'); else prog.classList.remove('busy');
+}
+
+function startUpload() {
+  formArea.hidden = true;
+  progArea.hidden = false;
+  setPhase('Uploading firmware\u2026', 0, false);
+
+  var xhr = new XMLHttpRequest();
+  xhr.upload.onprogress = function(e) {
+    if (e.lengthComputable) setPhase('Uploading firmware\u2026', Math.round(e.loaded / e.total * 85), false);
+  };
+  xhr.onload = function() {
+    if (xhr.status !== 200 || xhr.responseText.trim() !== 'OK') {
+      setPhase('Update failed: ' + xhr.responseText.trim(), prog.value, false);
+      prog.classList.remove('busy');
+      return;
+    }
+    onFlashing();
+  };
+  xhr.onerror = function() {
+    setPhase('Upload failed \u2014 check connection and try again.', prog.value, false);
+    prog.classList.remove('busy');
+  };
+
+  var fd = new FormData();
+  fd.append('firmware', fileInput.files[0]);
+  xhr.open('POST', '/update');
+  xhr.send(fd);
+}
+
+function onFlashing() {
+  setPhase('Writing to flash\u2026', 90, true);
+  setTimeout(function() {
+    setPhase('Restarting\u2026', 95, true);
+    pollForRestart();
+  }, 3000);
+}
+
+function pollForRestart() {
+  var attempts = 0;
+  var timer = setInterval(function() {
+    if (++attempts > 30) {
+      clearInterval(timer);
+      setPhase('Timed out \u2014 check the board manually.', 95, false);
+      return;
+    }
+    fetch('/api/info', { cache: 'no-store' })
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        clearInterval(timer);
+        setPhase('Complete', 100, false);
+        setTimeout(function() {
+          progArea.hidden = true;
+          successArea.hidden = false;
+          document.getElementById('new-ver').textContent = 'Now running v' + d.version;
+        }, 600);
+      })
+      .catch(function() { /* still restarting */ });
+  }, 2000);
+}
+</script>
+</body>
+</html>
