@@ -6,10 +6,10 @@
 // powering on/off (or resetting) these GPIOs float/default HIGH before
 // setup() runs pinMode()/ledcAttachPin(), which the MDDS30 can read as a
 // drive command and briefly engage the motors.
-#define PIN_MDDS_IN1    27   // Left motor direction (LOW=fwd, HIGH=rev)
-#define PIN_MDDS_AN1    14   // Left motor speed (LEDC PWM, 5kHz 8-bit)
+#define PIN_MDDS_IN1    13   // Left motor direction (LOW=fwd, HIGH=rev)
+#define PIN_MDDS_AN1    27   // Left motor speed (LEDC PWM, 5kHz 8-bit)
 #define PIN_MDDS_IN2    12   // Right motor direction (LOW=fwd, HIGH=rev)
-#define PIN_MDDS_AN2    13   // Right motor speed (LEDC PWM, 5kHz 8-bit)
+#define PIN_MDDS_AN2    14   // Right motor speed (LEDC PWM, 5kHz 8-bit)
 
 // --- Dome encoder + home sensor (top of left side, pads 6-7-8) ---
 #define PIN_DOME_ENC_A  35   // Encoder channel A (input-only, 10k+20k divider)

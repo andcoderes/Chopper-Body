@@ -12,9 +12,9 @@ static portMUX_TYPE encoderMux_ = portMUX_INITIALIZER_UNLOCKED;
 
 void IRAM_ATTR DomeController::onEncoderA() {
     if (digitalRead(PIN_DOME_ENC_B)) {
-        encoderCount_--;
+        encoderCount_ = encoderCount_ - 1;
     } else {
-        encoderCount_++;
+        encoderCount_ = encoderCount_ + 1;
     }
 }
 

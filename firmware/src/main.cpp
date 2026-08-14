@@ -90,6 +90,13 @@ void onCommand(const BodyCommand& cmd) {
     if (cmd.audioTrack > 0) {
         audio.playTrack(cmd.audioTrack);
     }
+    // cmd.bubbles is the current toggle state from the receiver (see
+    // CommandParser), re-stamped onto every packet — just mirror it.
+    if (cmd.bubbles) {
+        logAll("starting bubbles");
+    } else {
+        logAll("bubble off");
+    }
     digitalWrite(PIN_BUBBLES, cmd.bubbles ? HIGH : LOW);
 }
 
