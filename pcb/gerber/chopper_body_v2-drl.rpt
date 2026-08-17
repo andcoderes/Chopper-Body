@@ -1,0 +1,25 @@
+Drill report for chopper_body_v2.kicad_pcb
+Created on 2026-08-14T23:15:32
+
+Copper Layer Stackup:
+    =============================================================
+    L1 :  F.Cu                      front
+    L2 :  B.Cu                      back
+
+
+Drill file 'chopper_body_v2-PTH-drl.gbr' contains
+    plated through holes:
+    =============================================================
+    T1  0.700mm  0.0276"  (32 holes))
+    T2  0.800mm  0.0315"  (84 holes))
+    T3  0.889mm  0.0350"  (14 holes))
+    T4  1.200mm  0.0472"  (20 holes))
+
+    Total plated holes count 150
+
+
+Drill file 'chopper_body_v2-NPTH-drl.gbr' contains
+    unplated through holes:
+    =============================================================
+
+    Total unplated holes count 0

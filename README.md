@@ -21,22 +21,28 @@ ESP32-based body controller for the Chopper robot. Controls drive motors, dome r
 
 | Function | GPIO | Type | Notes |
 |---|---|---|---|
-| **MDDS30 IN1** (left dir) | 27 | Digital out | LOW = forward, HIGH = reverse. 10k pull-down on board |
-| **MDDS30 AN1** (left speed) | 14 | LEDC PWM | 5 kHz, 8-bit. 10k pull-down on board |
-| **MDDS30 IN2** (right dir) | 12 | Digital out | LOW = forward, HIGH = reverse. 10k pull-down on board |
-| **MDDS30 AN2** (right speed) | 13 | LEDC PWM | 5 kHz, 8-bit. 10k pull-down on board |
-| **Cytron MD10C DIR** (dome dir) | 33 | Digital out | 10k pull-down on board |
-| **Cytron MD10C PWM** (dome speed) | 25 | LEDC PWM | 5 kHz, 8-bit. 10k pull-down on board |
-| **Dome home sensor** | 32 | Digital in | A3144 hall-effect, 10k+20k divider |
-| **Dome encoder A** | 35 | Digital in | Input-only, 10k+20k divider |
-| **Dome encoder B** | 34 | Digital in | Input-only, 10k+20k divider |
-| **Pololu Maestro TX** | 23 | Serial1 TX | 9600 baud |
-| **Pololu Maestro RX** | 22 | Serial1 RX | 1k + 2k voltage divider (5V -> 3.3V) |
-| **MP3 Player TX** | 4 | Serial2 TX | 9600 baud |
-| **MP3 Player RX** | 16 | Serial2 RX | 1k + 2k voltage divider (5V -> 3.3V) |
-| **Bubbles relay** | 26 | Digital out | Relay module, active HIGH |
+| **MDDS30 IN1** (left dir) | 4 | Digital out | LOW = forward, HIGH = reverse. 10k pull-down on board |
+| **MDDS30 AN1** (left speed) | 17 | LEDC PWM | 5 kHz, 8-bit. 10k pull-down on board |
+| **MDDS30 IN2** (right dir) | 16 | Digital out | LOW = forward, HIGH = reverse. 10k pull-down on board |
+| **MDDS30 AN2** (right speed) | 5 | LEDC PWM | 5 kHz, 8-bit. 10k pull-down on board |
+| **Cytron MD10C DIR** (dome dir) | 14 | Digital out | 10k pull-down on board |
+| **Cytron MD10C PWM** (dome speed) | 27 | LEDC PWM | 5 kHz, 8-bit. 10k pull-down on board |
+| **Dome home sensor** | 26 | Digital in | A3144 hall-effect, 10k+20k divider |
+| **Dome encoder A** | 25 | Digital in | 10k+20k divider |
+| **Dome encoder B** | 33 | Digital in | 10k+20k divider |
+| **Pololu Maestro TX** | 32 | Serial1 TX | 9600 baud |
+| **Pololu Maestro RX** | 35 | Serial1 RX | Input-only. 1k + 2k voltage divider (5V -> 3.3V) |
+| **MP3 Player TX** | 19 | Serial2 TX | 9600 baud |
+| **MP3 Player RX** | 18 | Serial2 RX | 1k + 2k voltage divider (5V -> 3.3V) |
+| **Bubbles relay** | 21 | Digital out | Relay module, active HIGH |
 | **USB Debug TX** | 1 | Serial0 TX | 115200 baud |
 | **USB Debug RX** | 3 | Serial0 RX | 115200 baud |
+
+GPIO12 and GPIO13 (previously used for MDDS30) are intentionally left
+unconnected — GPIO12 is an ESP32 boot-strapping pin (flash voltage select)
+and stray HIGH signals on it during power-up can put the board in a reset
+loop. GPIO22/23 (previously Maestro) and GPIO34 (previously dome encoder B)
+are also now unused.
 
 ### MDDS30 DIP Switch Setting
 
@@ -47,8 +53,8 @@ ESP32-based body controller for the Chopper robot. Controls drive motors, dome r
 | UART | GPIO TX | GPIO RX | Baud | Device |
 |---|---|---|---|---|
 | Serial0 | 1 | 3 | 115200 | USB debug console |
-| Serial1 | 23 | 22 | 9600 | Pololu Maestro servo controller |
-| Serial2 | 4 | 16 | 9600 | MP3 player module (Catalex-style, requires "select TF card" init) |
+| Serial1 | 32 | 35 | 9600 | Pololu Maestro servo controller |
+| Serial2 | 19 | 18 | 9600 | MP3 player module (Catalex-style, requires "select TF card" init) |
 
 ## Build
 
