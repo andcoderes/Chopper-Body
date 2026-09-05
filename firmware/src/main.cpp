@@ -44,7 +44,7 @@ void onCommand(const BodyCommand& cmd) {
     switch (cmd.status) {
         case STATUS_MOVEMENT:
             logAll("ESP-NOW RX: move lx=%d ly=%d dome=%d", cmd.lx, cmd.ly, cmd.domeSpeed);
-            motors.setDrive(cmd.lx, cmd.ly);
+            motors.setDrive(cmd.ly, -cmd.lx);
             // Dome calibration drives the dome motor itself via dome.loop();
             // an RF movement command here would fight that write.
             if (!dome.isCalibrating()) {
@@ -101,16 +101,21 @@ void onCommand(const BodyCommand& cmd) {
 }
 
 void setup() {
+    // Drive every motor pin to a safe stopped state before anything else runs.
+    // Until this executes they are undriven inputs; the MDDS30 / MD10C read the
+    // floating level as a command and creep a motor during the boot delay below
+    // (worst on GPIO16/17, which also toggle at boot on WROVER modules).
+    motors.setup();
+
+    // Bubbles relay — same floating-input risk, safe it early too.
+    pinMode(PIN_BUBBLES, OUTPUT);
+    digitalWrite(PIN_BUBBLES, LOW);
+
     bootTime_ = millis();
 
     Serial.begin(115200);
     delay(500);
 
-    // Bubbles relay
-    pinMode(PIN_BUBBLES, OUTPUT);
-    digitalWrite(PIN_BUBBLES, LOW);
-
-    motors.setup();
     dome.setup(motors);
     servo.setup();
     audio.setup();
